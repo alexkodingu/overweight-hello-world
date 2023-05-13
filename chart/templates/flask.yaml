@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask
+  labels:
+    app: overweight-hello
+spec:
+  selector:
+    matchLabels:
+      app: overweight-hello
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: overweight-hello
+        tier: frontend
+    spec:
+      containers:
+      - image: {{ .Values.flask.image }}
+        name: flask
+        env:
+        - name: MYSQL_HOST
+          value: "mariadb"
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: rootpassword
+        - name: MYSQL_DATABASE
+          value: {{ .Values.mariadb.auth.database }}
+        ports:
+        - containerPort: 80
+          name: flask

@@ -7,7 +7,19 @@ Deploy an node.js in K8S (GKE auto), If you don't use your [GCP free tier](https
 
 ## Requirement
 
-### GCP account
+GCP project
+
+GCP xx account with right :
+* Artifact Registry Administrator
+* Compute Admin
+* Kubernetes Engine Admin
+* Network Management Admin
+* Service Account User
+
+
+
+
+
 
 ## RUN
 

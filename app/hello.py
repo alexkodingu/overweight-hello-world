@@ -42,29 +42,35 @@ class DBManager:
             rec[a]=b
         return rec
 
+def connect():
+    global conn
+
+    if not conn:
+        conn = DBManager(user=os.environ.get('MYSQL_USER'),
+                            password=os.environ.get('MYSQL_PASSWORD'),
+                            host=os.environ.get('MYSQL_HOST'),
+                            database=os.environ.get('MYSQL_DATABASE'),
+                            data=prefecture
+                            )
+    return conn
+
 
 server = Flask(__name__)
 global conn
 conn = None
 
-if not conn:
-    conn = DBManager(user=os.environ.get('MYSQL_USER'),
-                        password=os.environ.get('MYSQL_PASSWORD'),
-                        host=os.environ.get('MYSQL_HOST'),
-                        database=os.environ.get('MYSQL_DATABASE'),
-                        data=prefecture
-                        )
+con = connect()
     
-    conn.populate_db()
-    conn.populate_pref()
+con.populate_db()
+con.populate_pref()
 
 @server.route('/')
 def hello():
     reply =  "<h1>Hello World!</h1>"
     reply += "<p>We retrieve the prefectures & capitals from the db :"
     reply += "<ul>"
-    global conn
-    rec = conn.query_pref()
+    con = connect()
+    rec = con.query_pref()
 
     for c,d in rec.items():
         reply += '<li> '+ c +' -> '+ d +'</li>'

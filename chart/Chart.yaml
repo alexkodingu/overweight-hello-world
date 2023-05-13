@@ -1,0 +1,5 @@
+apiVersion: v2
+description: Chart for my overweight-hello
+type: application
+name: overweight-hello
+version: 0.1.0

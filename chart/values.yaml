@@ -1,0 +1,13 @@
+flask:
+  fullname: overweight-hello
+  image: "us-central1-docker.pkg.dev/fun-with-gcp-386305/repository/overweight-hello:1.1"
+
+mariadb:
+  name: "mariadb"
+  service-name: "mariadb"
+  image: "mariadb:10-focal"
+  auth:
+    database: "testing"
+    username: "DBUSER"
+    password: "DBPASSWORD"
+    rootPassword: "notGreatPassword"
