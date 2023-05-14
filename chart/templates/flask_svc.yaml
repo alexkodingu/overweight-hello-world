@@ -10,4 +10,4 @@ spec:
   selector:
     app: overweight-hello
     tier: frontend
-  type: NodePort
+  type: LoadBalancer

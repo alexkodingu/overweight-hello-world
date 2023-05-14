@@ -1,10 +1,10 @@
-flask:
-  fullname: overweight-hello
+front:
+  name: "flask"
   image: "us-central1-docker.pkg.dev/fun-with-gcp-386305/repository/overweight-hello:1.1"
+  svcname: "flask"
 
-mariadb:
+back:
   name: "mariadb"
-  service-name: "mariadb"
   image: "mariadb:10-focal"
   auth:
     database: "testing"

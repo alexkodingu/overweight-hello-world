@@ -18,7 +18,7 @@ spec:
         tier: mariadb
     spec:
       containers:
-      - image: {{ .Values.mariadb.image }}
+      - image: {{ .Values.back.image }}
         name: mariadb
         env:
         - name: MYSQL_USER
@@ -37,7 +37,7 @@ spec:
               name: credsecret
               key: rootpassword
         - name: MYSQL_DATABASE
-          value: {{ .Values.mariadb.auth.database }}
+          value: {{ .Values.back.auth.database }}
         ports:
         - containerPort: 3306
           name: mysql

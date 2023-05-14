@@ -1,0 +1,33 @@
+name: simple workflow
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
+  GOOGLE_PROJECT: fun-with-gcp-386305
+  GCP_PROJECT_REGION: us-central1
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    name: cre
+    steps:
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+      -
+        uses: hashicorp/setup-terraform@v1
+      - 
+        name: Terraform Init
+        run: terraform -chdir=terraform/ init
+      - 
+        name: Terraform Apply
+        run: terraform -chdir=terraform/ apply --auto-approve
+      - 
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraformstatefile
+          path: ./terraform/terraform.tfstate

@@ -6,13 +6,14 @@ resource "google_container_cluster" "my_cluster" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
+  logging_config {
+    enable_components = []
+  }
+  monitoring_service = "none"
+  
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
 }
-
-#data "google_service_account" "default" {
-#  account_id = "1069431788478-compute@developer.gserviceaccount.com"
-#}
 
 # Separately Managed Node Pool
 resource "google_container_node_pool" "my_nodes" {
