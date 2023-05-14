@@ -10,12 +10,6 @@ variable "GCP_PROJECT_REGION"{
   description = "Region for the infra"
 }
 
-variable "GCP_CREDENTIALS"{
-  type = string
-  description = "location of gcp credentials"
-}
-
-
 # GKE
 variable "gke_wanted" {
   type        = bool

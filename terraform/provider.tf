@@ -10,7 +10,6 @@ terraform {
 provider "google" {
   project     = var.GCP_PROJECT_ID
   region      = var.GCP_PROJECT_REGION
-  credentials = var.GCP_CREDENTIALS
 }
 
 # Retrieve an access token as the Terraform runner
