@@ -9,15 +9,14 @@ env:
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
   GOOGLE_PROJECT: ${{ vars.GOOGLE_PROJECT }}
   GOOGLE_REGION: ${{ vars.GOOGLE_REGION }}
-  GOOGLE_ZONE: ${{ vars.GOOGLE_ZONE }}
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
     env:
-      TF_VAR_GCP_PROJECT_ID: ${{ env.GOOGLE_PROJECT }}
-      TF_VAR_GCP_PROJECT_REGION: ${{ env.GOOGLE_REGION }}
-      TF_VAR_GCP_PROJECT_ZONE: ${{ env.GOOGLE_ZONE }}
+      TF_VAR_GCP_PROJECT_ID: ${{ vars.GOOGLE_PROJECT }}
+      TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
+      TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
     steps:
       - 
         name: Checkout repository
