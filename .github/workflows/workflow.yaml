@@ -7,13 +7,17 @@ on:
 
 env:
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
-  GOOGLE_PROJECT: fun-with-gcp-386305
-  GCP_PROJECT_REGION: us-central1
+  GOOGLE_PROJECT: ${{ vars.GOOGLE_PROJECT }}
+  GOOGLE_REGION: ${{ vars.GOOGLE_REGION }}
+  GOOGLE_ZONE: ${{ vars.GOOGLE_ZONE }}
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    name: cre
+    env:
+      TF_VAR_GCP_PROJECT_ID: ${{ env.GOOGLE_PROJECT }}
+      TF_VAR_GCP_PROJECT_REGION: ${{ env.GOOGLE_REGION }}
+      TF_VAR_GCP_PROJECT_ZONE: ${{ env.GOOGLE_ZONE }}
     steps:
       - 
         name: Checkout repository
@@ -25,7 +29,7 @@ jobs:
         run: terraform -chdir=terraform/ init
       - 
         name: Terraform Apply
-        run: terraform -chdir=terraform/ apply --auto-approve
+        run: terraform -chdir=terraform/ plan
       - 
         uses: actions/upload-artifact@v2
         with:
