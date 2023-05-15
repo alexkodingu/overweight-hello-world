@@ -9,7 +9,7 @@ env:
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
   GOOGLE_PROJECT: ${{ vars.GOOGLE_PROJECT }}
   GOOGLE_REGION: ${{ vars.GOOGLE_REGION }}
-  IMAGE: overweigh-hello
+  IMAGE: overweight-hello
 
 jobs:
   terraform:
@@ -49,5 +49,18 @@ jobs:
         name: build
         run: docker build -t ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__) app/
       - 
+        name: Auth repo
+        run: |
+          echo ${{ secrets.GCP_ACCESS_TOKEN }} | docker login -u _json_key --password-stdin "https://us-central1-docker.pkg.dev/fun-with-gcp-386305/repository"
+      - 
         name: push
         run:  docker push ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)
+
+
+us-central1-docker.pkg.dev/fun-with-gcp-386305/repository
+
+      - 
+        name: Auth repo
+        run: |
+          echo ${{ secrets.GCP_ACCESS_TOKEN }} | docker login -u _json_key --password-stdin "https://us-central1-docker.pkg.dev/fun-with-gcp-386305/repository"
+      - 
