@@ -34,9 +34,10 @@ jobs:
             if ($MostRecentArtifactURI){
               Invoke-RestMethod -uri $MostRecentArtifactURI -Token $Token -Authentication bearer -outfile ./state.zip
               Expand-Archive ./state.zip
-              mv ./state.zip/terraform.tfstate ./terraform/terraform.tfstate 
+              Move-Item -Path ./state.zip/terraform.tfstate -Destination ./terraform/terraform.tfstate 
             }
           }
+        shell: pwsh
       -
         uses: hashicorp/setup-terraform@v1
       - 
