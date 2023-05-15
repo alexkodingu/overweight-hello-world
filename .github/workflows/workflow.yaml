@@ -20,7 +20,7 @@ jobs:
       TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
     outputs:
       repo: ${{ steps.output1.outputs.test }}
-      cluster: ${{ steps.output.outputs.test }}  
+      cluster: ${{ steps.output2.outputs.test }}  
     steps:
       - 
         name: Checkout repository
