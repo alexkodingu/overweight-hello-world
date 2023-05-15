@@ -1,6 +1,6 @@
 front:
   name: "flask"
-  image: "us-central1-docker.pkg.dev/fun-with-gcp-386305/repository/overweight-hello:1.1"
+  image: ""
   svcname: "flask"
 
 back:

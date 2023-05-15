@@ -1,4 +1,4 @@
-name: simple workflow
+name: deployment
 
 on:
   push:
@@ -94,4 +94,4 @@ jobs:
           location: ${{ vars.GOOGLE_ZONE }}
       - 
         run: |-
-          helm upgrade hello ./chart -i
+          helm upgrade hello --set front.image=${{ needs.build_and_push.outputs.image }} ./chart -i
