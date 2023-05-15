@@ -6,15 +6,14 @@ on:
       - "main"
 
 env:
-  GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
-  GOOGLE_PROJECT: ${{ vars.GOOGLE_PROJECT }}
-  GOOGLE_REGION: ${{ vars.GOOGLE_REGION }}
   IMAGE: overweight-hello
 
 jobs:
   terraform:
+    name: Terraform apply
     runs-on: ubuntu-latest
     env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
       TF_VAR_GCP_PROJECT_ID: ${{ vars.GOOGLE_PROJECT }}
       TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
       TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
@@ -68,7 +67,7 @@ jobs:
         id: output
         run: echo "test=${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)" >> $GITHUB_OUTPUT
   helm_install:
-    name: Install the helm chart
+    name: Install helm chart
     runs-on: ubuntu-latest
     needs: [terraform, build_and_push]
     steps:
