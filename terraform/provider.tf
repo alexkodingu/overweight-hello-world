@@ -5,6 +5,9 @@ terraform {
       version = "4.64.0"
     }
   }
+  backend "gcs" {
+    bucket  = "fun-with-gcp-tf"
+  }
 }
 
 provider "google" {
