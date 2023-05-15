@@ -34,5 +34,5 @@ jobs:
         uses: devgioele/terraform-state-artifact@v4
         with:
           passphrase: "azerty"
-          path: "./terraform/terraform.tfstate"
+          path: "./terraform"
           download_upload: upload
