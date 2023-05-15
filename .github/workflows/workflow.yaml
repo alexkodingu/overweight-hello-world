@@ -30,12 +30,6 @@ jobs:
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
-        name: Download Terraform state
-        uses: devgioele/terraform-state-artifact@v4
-        with:
-          passphrase: ${{ vars.GOOGLE_REGION }}
-          download_upload: download
-      - 
         name: 'Upload Artifact'
         uses: actions/upload-artifact@v3
         with:
