@@ -1,0 +1,26 @@
+name: terraform cleaner
+
+on: [workflow_dispatch]
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
+      TF_VAR_GCP_PROJECT_ID: ${{ vars.GOOGLE_PROJECT }}
+      TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
+      TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
+    steps:
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+      - 
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+      - 
+        name: Terraform Init
+        run: terraform -chdir=terraform/ init
+      - 
+        name: Terraform destroy
+        run: terraform -chdir=terraform/ destroy --auto-approve
