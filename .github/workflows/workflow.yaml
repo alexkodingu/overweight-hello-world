@@ -19,7 +19,8 @@ jobs:
       TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
       TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
     outputs:
-      repo: ${{ steps.output.outputs.test }}  
+      repo: ${{ steps.output1.outputs.test }}
+      cluster: ${{ steps.output.outputs.test }}  
     steps:
       - 
         name: Checkout repository
@@ -35,12 +36,17 @@ jobs:
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
-        id: output
+        id: output1
         run: echo "test=$(terraform -chdir=terraform/ output -raw docker_repository)" >> $GITHUB_OUTPUT
-  push_to_registry:
-    name: Package app in Docker and push to registry
+      - 
+        id: output2
+        run: echo "test=$(terraform -chdir=terraform/ output -raw cluster_name)" >> $GITHUB_OUTPUT
+  build_and_push:
+    name: Build docker and push
     runs-on: ubuntu-latest
     needs: terraform
+    outputs:
+      image: ${{ steps.output.outputs.test }} 
     steps:
       - 
         name: Check out the repo
@@ -58,3 +64,29 @@ jobs:
       - 
         name: push
         run:  docker push ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)
+      - 
+        id: output
+        run: echo "test=${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)" >> $GITHUB_OUTPUT
+  helm_install:
+    name: Install the helm chart
+    runs-on: ubuntu-latest
+    needs: [terraform, build_and_push]
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3      
+      - 
+        name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.11.2
+      # Get the GKE credentials so we can deploy to the cluster
+      - 
+        uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ needs.terraform.cluster }}
+          location: ${{ vars.GOOGLE_ZONE }}
+          credentials: ${{ secrets.GCP_ACCESS_TOKEN }}
+      - 
+        run: |-
+          helm upgrade hello ./chart -i
