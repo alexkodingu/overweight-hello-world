@@ -33,7 +33,7 @@ jobs:
       - 
         id: tfapply
         name: Terraform Apply
-        run: terraform -chdir=terraform/ outpus --auto-approve
+        run: terraform -chdir=terraform/ apply --auto-approve
       - 
         id: output
         run: echo "test=$(terraform -chdir=terraform/ output docker_repository)" >> $GITHUB_OUTPUT
