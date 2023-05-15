@@ -22,13 +22,15 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@v3
       - 
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
+        with:
+        terraform_wrapper: false
       - 
         name: Terraform Init
         run: terraform -chdir=terraform/ init
       - 
-        id: plan
+        id: tfapply
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
-        run: echo ${{ steps.plan.outputs.docker_repository }}
+        run: echo ${{ steps.tfapply.outputs.docker_repository }}
