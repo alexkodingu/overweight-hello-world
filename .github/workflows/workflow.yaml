@@ -85,6 +85,7 @@ jobs:
         uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
         with:
           cluster_name: ${{ needs.terraform.outputs.cluster }}
+          project_id: ${{ vars.GOOGLE_PROJECT }}
           location: ${{ vars.GOOGLE_ZONE }}
           credentials: ${{ secrets.GCP_ACCESS_TOKEN }}
       - 
