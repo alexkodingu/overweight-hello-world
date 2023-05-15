@@ -80,14 +80,18 @@ jobs:
         uses: azure/setup-helm@v3
         with:
           version: v3.11.2
-      # Get the GKE credentials so we can deploy to the cluster
       - 
-        uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
         with:
+          credentials_json: '${{ secrets.GCP_ACCESS_TOKEN }}'
+      - 
+        id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with
           cluster_name: ${{ needs.terraform.outputs.cluster }}
           project_id: ${{ vars.GOOGLE_PROJECT }}
           location: ${{ vars.GOOGLE_ZONE }}
-          credentials: ${{ secrets.GCP_ACCESS_TOKEN }}
       - 
         run: |-
           helm upgrade hello ./chart -i
