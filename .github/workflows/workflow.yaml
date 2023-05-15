@@ -21,6 +21,23 @@ jobs:
       - 
         name: Checkout repository
         uses: actions/checkout@v3
+      -
+        run: |
+          $Repo = "${{ github.repository }}"
+          $BaseUri = "https://api.github.com"
+          $ArtifactUri = "$BaseUri/repos/$Repo/actions/artifacts"
+          $Token = "${{ github.token }}" | ConvertTo-SecureString -AsPlainText
+          $RestResponse = Invoke-RestMethod -Authentication Bearer -Uri $ArtifactUri -Token $Token | Select-Object -ExpandProperty artifacts
+          if ($RestResponse){
+            $MostRecentArtifactURI = $RestResponse | Sort-Object -Property created_at -Descending | where name -eq "tfstate" | Select-Object -First 1 | Select-Object -ExpandProperty archive_download_url
+            Write-Host "Most recent artifact URI = $MostRecentArtifactURI"
+            if ($MostRecentArtifactURI){
+              Invoke-RestMethod -uri $MostRecentArtifactURI -Token $Token -Authentication bearer -outfile ./state.zip
+              Expand-Archive ./state.zip
+              Move-Item ./state/terraform.tfstate ./terraform/terraform.tfstate
+            }
+          }
+        shell: pwsh
       - 
         uses: hashicorp/setup-terraform@v1
       - 
@@ -30,9 +47,7 @@ jobs:
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
-        name: Upload Terraform state
-        uses: devgioele/terraform-state-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          passphrase: "azerty"
-          path: "./terraform"
-          download_upload: upload
+          name: tfstate
+          path: .terraform/terraform.tfstate
