@@ -22,12 +22,10 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@v3
       - 
-        name: Download Terraform state
-        uses: devgioele/terraform-state-artifact@v4
+        name: 'Download  Artifact'
+        uses: actions/download-artifact@v3
         with:
-          passphrase: ${{ vars.GOOGLE_REGION }}
-          download_upload: download
-          statefile_location: ./terraform
+          name: tfstate
       -
         uses: hashicorp/setup-terraform@v1
       - 
@@ -43,9 +41,8 @@ jobs:
           passphrase: ${{ vars.GOOGLE_REGION }}
           download_upload: download
       - 
-        name: Upload Terraform state
-        uses: devgioele/terraform-state-artifact@v4
+        name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
         with:
-          passphrase: ${{ vars.GOOGLE_REGION }}
-          download_upload: upload
-          statefile_location: ./terraform
+          name: tfstate
+          path: ./terraform/terraform.tfstate
