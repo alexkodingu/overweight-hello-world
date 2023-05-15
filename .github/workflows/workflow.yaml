@@ -55,12 +55,3 @@ jobs:
       - 
         name: push
         run:  docker push ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)
-
-
-us-central1-docker.pkg.dev/fun-with-gcp-386305/repository
-
-      - 
-        name: Auth repo
-        run: |
-          echo ${{ secrets.GCP_ACCESS_TOKEN }} | docker login -u _json_key --password-stdin "https://us-central1-docker.pkg.dev/fun-with-gcp-386305/repository"
-      - 
