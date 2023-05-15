@@ -9,6 +9,7 @@ env:
   GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
   GOOGLE_PROJECT: ${{ vars.GOOGLE_PROJECT }}
   GOOGLE_REGION: ${{ vars.GOOGLE_REGION }}
+  IMAGE: overweigh-hello
 
 jobs:
   terraform:
@@ -36,3 +37,21 @@ jobs:
       - 
         id: output
         run: echo "test=$(terraform -chdir=terraform/ output docker_repository)" >> $GITHUB_OUTPUT
+  push_to_registry:
+    name: build and push app
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
+      - 
+        name: Auth repo
+        run |-
+          cat terraform/testkey.json | docker login -u _json_key --password-stdin \ https://${{ needs.terraform.outputs.repo }}
+      - 
+        name: build
+        run: docker build -t ${{ needs.terraform.outputs.repo }}/ ${{ env.IMAGE }}:$(cat app/__version__) app/
+      - 
+        name: push
+        run:  docker push ${{ needs.terraform.outputs.repo }}/ ${{ env.IMAGE }}:$(cat app/__version__)
