@@ -46,10 +46,6 @@ jobs:
         name: Check out the repo
         uses: actions/checkout@v3
       - 
-        name: Auth repo
-        run: |-
-          echo ${{ env.GOOGLE_CREDENTIALS }} | docker login -u _json_key --password-stdin {{ needs.terraform.outputs.repo }}
-      - 
         name: build
         run: docker build -t ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__) app/
       - 
