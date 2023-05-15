@@ -30,8 +30,8 @@ jobs:
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
-        name: 'Upload Artifact'
-        uses: actions/upload-artifact@v3
+        name: Upload Terraform state
+        uses: devgioele/terraform-state-artifact@v4
         with:
-          name: tfstate
-          path: ./terraform/terraform.tfstate
+          passphrase: "azerty"
+          download_upload: upload
