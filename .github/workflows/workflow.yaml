@@ -21,23 +21,13 @@ jobs:
       - 
         name: Checkout repository
         uses: actions/checkout@v3
-      -
-        run: |
-          $Repo = "${{ github.repository }}"
-          $BaseUri = "https://api.github.com"
-          $ArtifactUri = "$BaseUri/repos/$Repo/actions/artifacts"
-          $Token = "${{ github.token }}" | ConvertTo-SecureString -AsPlainText
-          $RestResponse = Invoke-RestMethod -Authentication Bearer -Uri $ArtifactUri -Token $Token | Select-Object -ExpandProperty artifacts
-          if ($RestResponse){
-            $MostRecentArtifactURI = $RestResponse | Sort-Object -Property created_at -Descending | where name -eq "terraformstatefile" | Select-Object -First 1 | Select-Object -ExpandProperty archive_download_url
-            Write-Host "Most recent artifact URI = $MostRecentArtifactURI"
-            if ($MostRecentArtifactURI){
-              Invoke-RestMethod -uri $MostRecentArtifactURI -Token $Token -Authentication bearer -outfile ./state.zip
-              Expand-Archive ./state.zip
-              Move-Item -Path ./state.zip/terraform.tfstate -Destination ./terraform/terraform.tfstate 
-            }
-          }
-        shell: pwsh
+      - 
+        name: Download Terraform state
+        uses: devgioele/terraform-state-artifact@v4
+        with:
+          passphrase: ${{ vars.GOOGLE_REGION }}
+          download_upload: download
+          statefile_location: ./terraform
       -
         uses: hashicorp/setup-terraform@v1
       - 
@@ -47,7 +37,15 @@ jobs:
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
-        uses: actions/upload-artifact@v2
+        name: Download Terraform state
+        uses: devgioele/terraform-state-artifact@v4
         with:
-          name: terraformstatefile
-          path: ./terraform/terraform.tfstate
+          passphrase: ${{ vars.GOOGLE_REGION }}
+          download_upload: download
+      - 
+        name: Upload Terraform state
+        uses: devgioele/terraform-state-artifact@v4
+        with:
+          passphrase: ${{ vars.GOOGLE_REGION }}
+          download_upload: upload
+          statefile_location: ./terraform
