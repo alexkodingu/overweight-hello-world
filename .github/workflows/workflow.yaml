@@ -29,6 +29,6 @@ jobs:
       - 
         id: plan
         name: Terraform Apply
-        run: terraform -chdir=terraform/ plan --auto-approve
+        run: terraform -chdir=terraform/ plan
       - 
-        run: steps.plan.outputs.docker_repository
+        run: echo ${{ steps.plan.outputs.docker_repository }}
