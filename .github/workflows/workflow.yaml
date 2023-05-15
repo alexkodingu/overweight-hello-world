@@ -17,7 +17,7 @@ jobs:
       TF_VAR_GCP_PROJECT_ID: ${{ vars.GOOGLE_PROJECT }}
       TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
       TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
-    output:
+    outputs:
       repo: ${{ steps.output.outputs.test }}  
     steps:
       - 
@@ -31,7 +31,6 @@ jobs:
         name: Terraform Init
         run: terraform -chdir=terraform/ init
       - 
-        id: tfapply
         name: Terraform Apply
         run: terraform -chdir=terraform/ apply --auto-approve
       - 
