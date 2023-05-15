@@ -3,7 +3,7 @@ name: terraform cleaner
 on: [workflow_dispatch]
 
 jobs:
-  terraform:
+  terraform_destroy:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}

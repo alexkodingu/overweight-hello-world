@@ -9,9 +9,10 @@ resource "google_container_cluster" "my_cluster" {
   logging_config {
     enable_components = []
   }
-  monitoring_service = "none"
-  logging_service = "none"
   
+  monitoring_config {
+    enable_components = []
+  } 
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
 }
