@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v3
       - 
         name: Auth repo
-        run |-
+        run: |-
           cat terraform/testkey.json | docker login -u _json_key --password-stdin \ https://${{ needs.terraform.outputs.repo }}
       - 
         name: build
