@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mariadb
+  name: {{ .Values.back.name }}
   labels:
-    app: overweight-hello
+    app: {{ .Chart.Name }}
 spec:
   selector:
     matchLabels:
-      app: overweight-hello
+      app: {{ .Chart.Name }}
       tier: mariadb
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: overweight-hello
+        app: {{ .Chart.Name }}
         tier: mariadb
     spec:
       containers:
       - image: {{ .Values.back.image }}
-        name: mariadb
+        name: {{ .Values.back.name }}
         env:
         - name: MYSQL_USER
           valueFrom:

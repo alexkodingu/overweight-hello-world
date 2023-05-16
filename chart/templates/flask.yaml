@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask
+  name: {{ .Values.front.name }}
   labels:
-    app: overweight-hello
+    app: {{ .Chart.Name }}
 spec:
   selector:
     matchLabels:
-      app: overweight-hello
+      app: {{ .Chart.Name }}
       tier: frontend
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: overweight-hello
+        app: {{ .Chart.Name }}
         tier: frontend
     spec:
       containers:
@@ -22,7 +22,7 @@ spec:
         name: flask
         env:
         - name: MYSQL_HOST
-          value: "mariadb"
+          value: {{ .Values.back.name }}
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
@@ -42,4 +42,4 @@ spec:
           value: {{ .Values.back.auth.database }}
         ports:
         - containerPort: 80
-          name: flask
+          name: {{ .Values.front.name }}

@@ -6,7 +6,7 @@ terraform {
     }
   }
   backend "gcs" {
-    bucket  = "fun-with-gcp-tf"
+    bucket  = "fun-with-gcp-12345"
   }
 }
 

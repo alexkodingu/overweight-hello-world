@@ -1,53 +1,207 @@
 # overweight-hello-world
 
-Hello world from an app with bdd on GKE
+## Introduction
 
-Deploy an node.js in K8S (GKE auto), If you don't use your [GCP free tier](https://cloud.google.com/free/docs/free-cloud-features), it should fit in.
+This project aim to show a full, but simple, CI/CD that deploy an application on Kubernetes. It is made to run on Google Cloud and cost almost nothing if you don't already use your [GCP free tier](https://cloud.google.com/free/docs/free-cloud-features)
 
+## Architecture
 
-## Requirement
+![architecture](doc/architecture.png)
 
-GCP project
+## CI/CD overview
 
-GCP xx account with right :
+It's using GitHub action as CI/CD tool.
+
+This deployment workflow is executed when a push on the main branch is done:
+
+![ci-cd](doc/ci-cd.jpg)
+
+> There is also a cleaner workflow to clean your infrastructure when you've finished. You have to execute it manually from the tab "Actions" of your project. (/!\ this workflow don't delete the project, the cloud storage and the service account)
+
+## Requirements / Préparation
+
+### GCP
+
+#### Create a project (Optional)
+
+If you don't have a project available, please [create one](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
+
+** Note your project ID for later **
+
+#### Enable the API
+
+By default all the API required aren't enabled on the project, please be sure to [enable the API](https://cloud.google.com/endpoints/docs/openapi/enable-api):
+
+* Compute Engine API
+* Cloud Monitoring API
+* Artifact Registry API
+* Kubernetes Engine API
+* Cloud DNS API
+* Cloud Logging
+* Cloud Autoscaling API
+
+#### Create a service account & its key
+
+The service account will be used by Github to do all the necessary action on GCP. 
+
+1. Please [create a service account](https://cloud.google.com/iam/docs/service-accounts-create) with the following roles:
+
 * Artifact Registry Administrator
 * Compute Admin
 * Kubernetes Engine Admin
 * Network Management Admin
 * Service Account User
+* Storage Admin
 
+2. [Create a new key in json format](https://cloud.google.com/iam/docs/keys-create-delete) for this service account.
 
+**Download the json key file and keep it for later**
 
+#### Create a bucket
 
+To store the tfstate of terraform, we need a Bucket in Cloud Storage. Please create one with the following information:
 
+* Put the Name you want
+* Set Region: us-central1 (if you plan to keep the default configuration)
+* Keep "Set a default class" as "Standard"
+* Keep default "Enforce public access prevention on this bucket" selected
+* Keep default access control at "Uniform"
+* keep default projection tools at "None"
 
-## RUN
+**Note your bucket name for later**
 
-### Run with GitHub
+### GitHub
 
+#### Create new repository
 
-### Run locally
+Please [create a new repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) with a branch "main"
 
-Mostly the following command will make you do the same command of the GitHub CI
+#### Set Variables for Github Action
 
+We need few secret & variables to run the project, [please create them](https://docs.github.com/en/actions/security-guides/encrypted-secrets?tool=webui):
 
-1 is mandatory, if you already made one
+|  Type  | Name             | Secret/value                         |
+|--------|------------------|--------------------------------------|
+| secret | GCP_ACCESS_TOKEN | copy the content of the access key .json |
+|variable| GOOGLE_PROJECT   | copy project id                    |
+|variable| GOOGLE_REGION    | us-central1 *                          |
+|variable| GOOGLE_ZONE      | us-central1-a *                        |
+\* default parameters with witch it was tested
 
-## 1 set required env variable
+## Try it
 
-## manage terraform
+### computer preparation
 
-docker run --rm -it --name terraform --env-file ./test.env -v $(pwd)/terraform:/workspace -w /workspace hashicorp/terraform:latest apply
+1. Clone your repository
 
+```sh
+git clone <your repository>
+```
 
-``` terraform apply xx ```
+2. Copy zip content in your folder (local repository)
 
-## deploy application
+3. Modify terraform backend setting
 
-### build app into K8S
+update line 9 of the file ``./terraform/provider.tf``:
+```txt
+...
+  backend "gcs" {
+    bucket  = "<your bucket name>"
+  }
+...
 
-### deploy with helm
+```
 
-## Disclaimer
+### Execute (do git push)
 
-It's given as an example and testing, none of the elements are production ready
+```sh
+git add .
+git commit -m "my app on gcp"
+git push
+```
+
+### Watch
+
+1. [Github] In the tab "Actions", a workflow "deployment" will appear with a run name of your commit message.
+2. [Github] if you select it, you will see the name of the jobs (describe previously). You can click on each job to have detail about it.
+3. [GCP] The 1st job should create in order: VPC, subnet, artifact registry, Kubernetes Engine (GKE), container node pool, compute.(The GKE part should take a few minute).
+4. [GCP] At the end of the 2nd job, a image should be available in the artifact registry.
+5. [GCP] The 3rd job will deploy the application. In the view Services&Ingress of GKE, you should see an ip address to see the application ``http://34.173.214.138:80/``. Even if the service is available it's possible that the deployment take some time because the default node is really slow.
+6. Open the URL on a browser, you should see a hello world message and the prefecture & capital of Japan (retrieved from the mariadb database)
+
+```txt
+Hello World!
+
+We retrieve the prefectures & capitals from the db :
+
+    Aichi -> Nagoya
+    Akita -> Akita
+    Aomori -> Aomori
+    Chiba -> Chiba
+    Ehime -> Matsuyama
+    Fukui -> Fukui
+    Fukuoka -> Fukuoka
+    Fukushima -> Fukushima
+    Gifu -> Gifu
+...
+```
+
+### Idea to try
+
+Change a value in some files and see the change after commit.
+
+#### Use a better compute type for the node
+
+* Idea 1) Edit line 51 of ``terraform/variables.tf``:
+
+```terraform
+...
+variable "gke_node_type" {
+    type    = string
+    description = "Compute Type for the nodes"
+    default = "<your new type>"
+}
+...
+```
+
+* Idea 2) add env var to CI/CD to set it. Edit line 20 of ``.github/workflow/workflow.yaml``:
+
+```yml
+...
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
+      TF_VAR_GCP_PROJECT_ID: ${{ vars.GOOGLE_PROJECT }}
+      TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
+      TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
+      TF_VAR_gke_node_type: <your new type>
+...
+```
+
+#### Change the application
+
+* Idea 1) Change the version of the application in file ``app/__version__``
+* Idea 2) Change the Hello world text line 55 of ``app/hello.py`` (please also do Idea 1):
+```yml
+...
+@server.route('/')
+def hello():
+    reply =  "<h1>Hello <your new message></h1>"
+    reply += "<p>We retrieve the prefectures & capitals from the db :"
+    reply += "<ul>"
+...
+```
+* Idea 3) Change the content of database, line 52 of ``app/data.py`` (please also do Idea 1):
+```yml
+prefecture = {
+    "<add something>":"<add something>",
+    "Aichi":"Nagoya",
+    "Akita":"Akita",
+...
+```
+
+### clean and retry
+
+Without making any change in the code, it's possible to clean and retry from github "Actions" tab.
+
+1. Clean: Select **terraform cleaner** workflow and click **Run workflow** (on main branch).
+2. Re-run the deployment:  Select **deployment** workflow, click last workflow run and  click **Re-run all jobs**.

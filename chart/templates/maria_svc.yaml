@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mariadb
+  name: {{ .Values.back.name }}
   labels:
-    app: overweight-hello
+    app: {{ .Chart.Name }}
 spec:
   ports:
     - port: 3306
   selector:
-    app: overweight-hello
+    app: {{ .Chart.Name }}
     tier: mariadb
   clusterIP: None
