@@ -1,4 +1,4 @@
-# overweight-hello-world
+# Overweight-hello-world
 
 ## Introduction
 
@@ -8,7 +8,7 @@ This project aim to show a full, but simple, CI/CD that deploy an application on
 
 ![architecture](doc/architecture.png)
 
-## CI/CD overview
+## CI/CD
 
 It's using GitHub action as CI/CD tool.
 
@@ -18,7 +18,7 @@ This deployment workflow is executed when a push on the main branch is done:
 
 > There is also a cleaner workflow to clean your infrastructure when you've finished. You have to execute it manually from the tab "Actions" of your project. (/!\ this workflow don't delete the project, the cloud storage and the service account)
 
-## Requirements / Préparation
+## Requirements / Preparation
 
 ### GCP
 
@@ -26,7 +26,7 @@ This deployment workflow is executed when a push on the main branch is done:
 
 If you don't have a project available, please [create one](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
 
-** Note your project ID for later **
+**Note your project ID for later**
 
 #### Enable the API
 
@@ -61,7 +61,7 @@ The service account will be used by Github to do all the necessary action on GCP
 
 To store the tfstate of terraform, we need a Bucket in Cloud Storage. Please create one with the following information:
 
-* Put the Name you want
+* Put the <Name> you want
 * Set Region: us-central1 (if you plan to keep the default configuration)
 * Keep "Set a default class" as "Standard"
 * Keep default "Enforce public access prevention on this bucket" selected
@@ -76,21 +76,21 @@ To store the tfstate of terraform, we need a Bucket in Cloud Storage. Please cre
 
 Please [create a new repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) with a branch "main"
 
-#### Set Variables for Github Action
+#### Set Variables for GitHub Actions
 
 We need few secret & variables to run the project, [please create them](https://docs.github.com/en/actions/security-guides/encrypted-secrets?tool=webui):
 
 |  Type  | Name             | Secret/value                         |
 |--------|------------------|--------------------------------------|
 | secret | GCP_ACCESS_TOKEN | copy the content of the access key .json |
-|variable| GOOGLE_PROJECT   | copy project id                    |
-|variable| GOOGLE_REGION    | us-central1 *                          |
-|variable| GOOGLE_ZONE      | us-central1-a *                        |
+|variable| GOOGLE_PROJECT   | copy your project id                 |
+|variable| GOOGLE_REGION    | us-central1 *                        |
+|variable| GOOGLE_ZONE      | us-central1-a *                      |
 \* default parameters with witch it was tested
 
 ## Try it
 
-### computer preparation
+### Computer preparation
 
 1. Clone your repository
 
@@ -98,11 +98,9 @@ We need few secret & variables to run the project, [please create them](https://
 git clone <your repository>
 ```
 
-2. Copy zip content in your folder (local repository)
+2. Copy zip content in the folder (local repository)
 
-3. Modify terraform backend setting
-
-update line 9 of the file ``./terraform/provider.tf``:
+3. Modify terraform backend setting. Update line 9 of the file ``./terraform/provider.tf``:
 ```txt
 ...
   backend "gcs" {
@@ -123,11 +121,11 @@ git push
 ### Watch
 
 1. [Github] In the tab "Actions", a workflow "deployment" will appear with a run name of your commit message.
-2. [Github] if you select it, you will see the name of the jobs (describe previously). You can click on each job to have detail about it.
-3. [GCP] The 1st job should create in order: VPC, subnet, artifact registry, Kubernetes Engine (GKE), container node pool, compute.(The GKE part should take a few minute).
+2. [Github] If you select it, you will see the name of the jobs (describe previously). You can click on each job to see details.
+3. [GCP] The 1st job should create in order: VPC, subnet, artifact registry, Kubernetes Engine (GKE), container node pool, compute.(The GKE part should take few minutes).
 4. [GCP] At the end of the 2nd job, a image should be available in the artifact registry.
-5. [GCP] The 3rd job will deploy the application. In the view Services&Ingress of GKE, you should see an ip address to see the application ``http://34.173.214.138:80/``. Even if the service is available it's possible that the deployment take some time because the default node is really slow.
-6. Open the URL on a browser, you should see a hello world message and the prefecture & capital of Japan (retrieved from the mariadb database)
+5. [GCP] The 3rd job will deploy the application. In the view Services&Ingress of GKE, you should see an ip address to see the application ``123.123.123.123:80/``. Even if the service is available it's possible that the deployment take some time because the default node type is really slow (to stay in [GCP free tier](https://cloud.google.com/free/docs/free-cloud-features)).
+6. Open the address in a browser, you should see this:
 
 ```txt
 Hello World!
@@ -148,7 +146,7 @@ We retrieve the prefectures & capitals from the db :
 
 ### Idea to try
 
-Change a value in some files and see the change after commit.
+Edit some files and see the change after commit.
 
 #### Use a better compute type for the node
 
@@ -199,9 +197,9 @@ prefecture = {
 ...
 ```
 
-### clean and retry
+### Clean and retry
 
-Without making any change in the code, it's possible to clean and retry from github "Actions" tab.
+Without making any change in the code, it's possible to clean and retry from the GitHub Actions tab.
 
 1. Clean: Select **terraform cleaner** workflow and click **Run workflow** (on main branch).
-2. Re-run the deployment:  Select **deployment** workflow, click last workflow run and  click **Re-run all jobs**.
+2. Re-run the deployment:  Select **deployment** workflow, click on the last workflow run and  click **Re-run all jobs**.

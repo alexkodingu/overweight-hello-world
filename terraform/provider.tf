@@ -14,6 +14,3 @@ provider "google" {
   project     = var.GCP_PROJECT_ID
   region      = var.GCP_PROJECT_REGION
 }
-
-# Retrieve an access token as the Terraform runner
-data "google_client_config" "provider" {}
