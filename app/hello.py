@@ -52,7 +52,7 @@ con.populate_pref()
 
 @server.route('/')
 def hello():
-    reply =  "<h1>Hello World!</h1>"
+    reply =  "<h1>Hello Alexandre!</h1>"
     reply += "<p>We retrieve the prefectures & capitals from the db :"
     reply += "<ul>"
     con = connect()
