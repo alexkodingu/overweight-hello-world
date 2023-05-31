@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.back.name }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      tier: mariadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        tier: mariadb
+    spec:
+      containers:
+      - image: {{ .Values.back.image }}
+        name: {{ .Values.back.name }}
+        env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: rootpassword
+        - name: MYSQL_DATABASE
+          value: {{ .Values.back.auth.database }}
+        ports:
+        - containerPort: 3306
+          name: mysql

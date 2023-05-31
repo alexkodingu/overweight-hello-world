@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.front.name }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        tier: frontend
+    spec:
+      containers:
+      - image: {{ .Values.front.image }}
+        name: flask
+        env:
+        - name: MYSQL_HOST
+          value: {{ .Values.back.name }}
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credsecret
+              key: rootpassword
+        - name: MYSQL_DATABASE
+          value: {{ .Values.back.auth.database }}
+        ports:
+        - containerPort: 80
+          name: {{ .Values.front.name }}

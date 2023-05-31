@@ -1,0 +1,12 @@
+Congratulation, You've installed {{ .Chart.Name}}
+
+Your release is named {{ .Release.Name }}.
+
+You can obtain the application IP with this command:
+
+    kubectl get svc --namespace {{ .Release.Namespace }} {{.Values.front.svcname}} --output jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+Or try from the terminal:
+
+    export PAGE=$(kubectl get svc --namespace {{ .Release.Namespace }} {{.Values.front.svcname}} --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    curl $PAGE

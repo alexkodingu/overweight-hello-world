@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.4
+FROM python:3.10-alpine AS builder
+
+WORKDIR /code
+COPY requirements.txt /code
+RUN pip3 install -r requirements.txt
+
+COPY . .
+
+ENV FLASK_APP hello.py
+ENV FLASK_ENV production
+ENV FLASK_RUN_PORT 80
+ENV FLASK_RUN_HOST 0.0.0.0
+
+EXPOSE 80
+
+CMD ["flask", "run"]
+
+FROM builder AS dev-envs
+
+CMD ["flask", "run"]

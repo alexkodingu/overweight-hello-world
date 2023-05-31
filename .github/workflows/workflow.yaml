@@ -1,0 +1,100 @@
+name: deployment
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  IMAGE: overweight-hello
+
+jobs:
+  terraform:
+    name: Terraform apply
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_ACCESS_TOKEN }}
+      GOOGLE_BUCKET: ${{ vars.GOOGLE_BUCKET }}
+      TF_VAR_GCP_PROJECT_ID: ${{ vars.GOOGLE_PROJECT }}
+      TF_VAR_GCP_PROJECT_REGION: ${{ vars.GOOGLE_REGION }}
+      TF_VAR_GCP_PROJECT_ZONE: ${{ vars.GOOGLE_ZONE }}
+    outputs:
+      repo: ${{ steps.output1.outputs.test }}
+      cluster: ${{ steps.output2.outputs.test }}  
+    steps:
+      - 
+        name: Checkout repository
+        uses: actions/checkout@v3
+      - 
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+      - 
+        name: Set bucket backend
+        run: sed -i "s/replace_by_ci/$GOOGLE_BUCKET/g" terraform/provider.tf
+      - 
+        name: Terraform Init
+        run: terraform -chdir=terraform/ init
+      -  
+        name: Terraform Apply
+        run: terraform -chdir=terraform/ apply --auto-approve
+      - 
+        id: output1
+        run: echo "test=$(terraform -chdir=terraform/ output -raw docker_repository)" >> $GITHUB_OUTPUT
+      - 
+        id: output2
+        run: echo "test=$(terraform -chdir=terraform/ output -raw cluster_name)" >> $GITHUB_OUTPUT
+  build_and_push:
+    name: Build docker and push
+    runs-on: ubuntu-latest
+    needs: terraform
+    outputs:
+      image: ${{ steps.output.outputs.test }} 
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
+      - 
+        name: build
+        run: docker build -t ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__) app/
+      -
+        name: Login to GCR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ needs.terraform.outputs.repo }}
+          username: _json_key
+          password: ${{ secrets.GCP_ACCESS_TOKEN }}
+      - 
+        name: push
+        run:  docker push ${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)
+      - 
+        id: output
+        run: echo "test=${{ needs.terraform.outputs.repo }}/${{ env.IMAGE }}:$(cat app/__version__)" >> $GITHUB_OUTPUT
+  helm_install:
+    name: Install helm chart
+    runs-on: ubuntu-latest
+    needs: [terraform, build_and_push]
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3      
+      - 
+        name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.11.2
+      - 
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_ACCESS_TOKEN }}'
+      - 
+        id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: ${{ needs.terraform.outputs.cluster }}
+          project_id: ${{ vars.GOOGLE_PROJECT }}
+          location: ${{ vars.GOOGLE_ZONE }}
+      - 
+        run: |-
+          helm upgrade hello --set front.image=${{ needs.build_and_push.outputs.image }} ./chart -i

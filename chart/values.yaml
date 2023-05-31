@@ -1,0 +1,13 @@
+front:
+  name: "flask"
+  image: ""
+  svcname: "flask"
+
+back:
+  name: "mariadb"
+  image: "mariadb:10-focal"
+  auth:
+    database: "testing"
+    username: "DBUSER"
+    password: "DBPASSWORD"
+    rootPassword: "notGreatPassword"
