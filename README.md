@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This project aim to show a full, but simple, CI/CD that deploy an application on Kubernetes. It is made to run on Google Cloud and cost almost nothing if you don't already use your [GCP free tier](https://cloud.google.com/free/docs/free-cloud-features)
+This project aim to show a full, but simple, CI/CD that deploy an simple application on Kubernetes (and the required Infrastructure around). It is made to run on Google Cloud and cost almost nothing if you don't already use your [GCP free tier](https://cloud.google.com/free/docs/free-cloud-features)
+
+> You can also use it just to have a free cluster if you don't build & deploy the app.
 
 ## Architecture
 
@@ -61,7 +63,7 @@ The service account will be used by Github to do all the necessary action on GCP
 
 To store the tfstate of terraform, we need a Bucket in Cloud Storage. Please create one with the following information:
 
-* Put the <\Name\> you want
+* Put the \<Name\> you want
 * Set Region: us-central1 (if you plan to keep the default configuration)
 * Keep "Set a default class" as "Standard"
 * Keep default "Enforce public access prevention on this bucket" selected
@@ -72,11 +74,9 @@ To store the tfstate of terraform, we need a Bucket in Cloud Storage. Please cre
 
 ### GitHub
 
-#### Create new repository
+#### 1. Clone this repository
 
-Please [create a new repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) with a branch "main"
-
-#### Set Variables for GitHub Actions
+#### 2. Set Variables for GitHub Actions
 
 We need few secret & variables to run the project, [please create them](https://docs.github.com/en/actions/security-guides/encrypted-secrets?tool=webui):
 
@@ -92,23 +92,9 @@ We need few secret & variables to run the project, [please create them](https://
 
 ## Try it
 
-### Computer preparation
+### Do a commit
 
-1. Clone your repository
-
-```sh
-git clone <your repository>
-```
-
-2. Copy zip content in the folder (local repository)
-
-### Execute (do git push)
-
-```sh
-git add .
-git commit -m "my app on gcp"
-git push
-```
+> Maybe the CI execute at the cloning, so you can just run it manually from the "actions" tab. (It should be in error as you didn't have secret &variables)
 
 ### Watch
 
@@ -140,7 +126,7 @@ We retrieve the prefectures & capitals from the db :
 
 Edit some files and see the change after commit.
 
-#### Use a better compute type for the node
+#### Use a better compute type for the node (choose one)
 
 * Idea 1) Edit line 51 of ``terraform/variables.tf``:
 
@@ -172,6 +158,7 @@ variable "gke_node_type" {
 
 * Idea 1) Change the version of the application in file ``app/__version__``
 * Idea 2) Change the Hello world text line 55 of ``app/hello.py`` (please also do Idea 1):
+
 ```yml
 ...
 @server.route('/')
@@ -181,7 +168,9 @@ def hello():
     reply += "<ul>"
 ...
 ```
+
 * Idea 3) Change the content of database, line 52 of ``app/data.py`` (please also do Idea 1):
+
 ```yml
 prefecture = {
     "<add something>":"<add something>",
