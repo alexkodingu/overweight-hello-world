@@ -87,6 +87,7 @@ We need few secret & variables to run the project, [please create them](https://
 |variable| GOOGLE_REGION    | us-central1 *                        |
 |variable| GOOGLE_ZONE      | us-central1-a *                      |
 |variable| GOOGLE_BUCKET    | Bucket name created previously       |
+|variable| DEPLOY_APP       | **False** (ONLY if you don't want the app |
 
 \* default parameters with which it was tested
 
